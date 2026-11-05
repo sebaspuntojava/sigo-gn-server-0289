@@ -4,5 +4,9 @@
   "tipo": "Socavón ",
   "zona": "UPIICSA Graduados",
   "fecha": "2026-11-03",
-  "descripcion": "Prueba 3 jeje"
+  "descripcion": "Prueba 3 jeje",
+  "estatus": "Cerrado",
+  "prioridad": "Baja",
+  "fechaCreacion": "2026-11-05T10:21:43.045Z",
+  "fechaModificacion": "2026-11-05T10:21:43.045Z"
 }

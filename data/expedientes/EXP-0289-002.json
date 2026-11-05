@@ -4,5 +4,9 @@
   "tipo": "Cierre de Calle",
   "zona": "UPIICSA Ingenieria",
   "fecha": "2026-11-05",
-  "descripcion": "Prueba 2 jeje"
+  "descripcion": "Prueba 2 jeje",
+  "estatus": "En proceso",
+  "prioridad": "Media",
+  "fechaCreacion": "2026-11-05T10:21:35.386Z",
+  "fechaModificacion": "2026-11-05T10:21:35.386Z"
 }

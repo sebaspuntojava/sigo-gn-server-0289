@@ -4,5 +4,9 @@
   "tipo": "Accidente Vial",
   "zona": "UPIICSA Sociales",
   "fecha": "2026-11-04",
-  "descripcion": "Prueba edicion descripcion"
+  "descripcion": "Prueba edicion descripcion",
+  "estatus": "Abierto",
+  "prioridad": "Media",
+  "fechaCreacion": "2026-11-05T10:21:29.461Z",
+  "fechaModificacion": "2026-11-05T10:21:29.461Z"
 }

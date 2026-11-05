@@ -1,0 +1,12 @@
+{
+  "folio": "EXP-0289-013",
+  "nombre": "Operativo Prueba13",
+  "tipo": "Alarma activada",
+  "zona": "UPIICSA Edif Sociales",
+  "fecha": "2026-11-15",
+  "descripcion": "Prueba 13 jeje ",
+  "estatus": "Abierto",
+  "prioridad": "Baja",
+  "fechaCreacion": "2026-11-05T10:17:54.795Z",
+  "fechaModificacion": "2026-11-05T10:17:54.795Z"
+}

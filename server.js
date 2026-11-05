@@ -30,7 +30,16 @@ app.get('/expedientes', (req, res) => {
 })
 
 app.post('/expedientes', (req, res) => {
-  const { folio, nombre, tipo, zona, fecha, descripcion } = req.body
+  const {
+    folio,
+    nombre,
+    tipo,
+    zona,
+    fecha,
+    descripcion,
+    estatus,
+    prioridad,
+  } = req.body
 
   if (!/^EXP-0289-\d{3}$/.test(folio || '')) {
     return res.status(400).json({
@@ -44,10 +53,43 @@ app.post('/expedientes', (req, res) => {
     return res.status(409).json({ error: 'Ese folio ya existe.' })
   }
 
-  const expediente = { folio, nombre, tipo, zona, fecha, descripcion }
-  fs.writeFileSync(archivo, JSON.stringify(expediente, null, 2), 'utf8')
+  const ahora = new Date().toISOString()
+  const expediente = {
+    folio,
+    nombre,
+    tipo,
+    zona,
+    fecha,
+    descripcion,
+    estatus: estatus || 'Abierto',
+    prioridad: prioridad || 'Media',
+    fechaCreacion: ahora,
+    fechaModificacion: ahora,
+  }
 
+  fs.writeFileSync(archivo, JSON.stringify(expediente, null, 2), 'utf8')
   res.status(201).json(expediente)
+})
+
+app.get('/expedientes/buscar', (req, res) => {
+  const texto = (req.query.texto || '').toLowerCase()
+
+  const archivos = fs.readdirSync(CARPETA_EXPEDIENTES)
+  const expedientes = archivos
+    .filter((archivo) => archivo.endsWith('.json'))
+    .map((archivo) => {
+      const contenido = fs.readFileSync(
+        path.join(CARPETA_EXPEDIENTES, archivo),
+        'utf8'
+      )
+      return JSON.parse(contenido)
+    })
+    .filter((expediente) =>
+      [expediente.folio, expediente.nombre, expediente.descripcion]
+        .some((campo) => (campo || '').toLowerCase().includes(texto))
+    )
+
+  res.json(expedientes)
 })
 
 app.get('/expedientes/:folio', (req, res) => {
@@ -80,8 +122,21 @@ app.put('/expedientes/:folio', (req, res) => {
     return res.status(404).json({ error: 'Expediente no encontrado.' })
   }
 
-  const { nombre, tipo, zona, fecha, descripcion } = req.body
-  const expediente = { folio, nombre, tipo, zona, fecha, descripcion }
+  const actual = JSON.parse(fs.readFileSync(archivo, 'utf8'))
+  const { nombre, tipo, zona, fecha, descripcion, estatus, prioridad } = req.body
+
+  const expediente = {
+    folio,
+    nombre,
+    tipo,
+    zona,
+    fecha,
+    descripcion,
+    estatus: estatus || actual.estatus || 'Abierto',
+    prioridad: prioridad || actual.prioridad || 'Media',
+    fechaCreacion: actual.fechaCreacion || new Date().toISOString(),
+    fechaModificacion: new Date().toISOString(),
+  }
 
   fs.writeFileSync(archivo, JSON.stringify(expediente, null, 2), 'utf8')
   res.json(expediente)

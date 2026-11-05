@@ -4,5 +4,9 @@
   "tipo": "Pavimentación ",
   "zona": "UPIICSA AV TE",
   "fecha": "2026-11-06",
-  "descripcion": "Prueba 4 jeje"
+  "descripcion": "Prueba 4 jeje",
+  "estatus": "En proceso",
+  "prioridad": "Alta",
+  "fechaCreacion": "2026-11-05T10:22:01.627Z",
+  "fechaModificacion": "2026-11-05T10:22:01.627Z"
 }
