@@ -292,7 +292,42 @@ app.delete('/operativos/:clave', (req, res) => {
   res.json({ mensaje: `Operativo ${clave} eliminado.` })
 })
 
+app.patch('/operativos/:clave/estado', (req, res) => {
+  const { clave } = req.params
+  const { estado } = req.body
 
+  if (!/^OP-0289-\d{3}$/.test(clave)) {
+    return res.status(400).json({ error: 'Formato de clave inválido.' })
+  }
+
+  const archivo = path.join(CARPETA_OPERATIVOS, `${clave}.json`)
+
+  if (!fs.existsSync(archivo)) {
+    return res.status(404).json({ error: 'Operativo no encontrado.' })
+  }
+
+  const transiciones = {
+    Nuevo: ['Listo'],
+    Listo: ['En ejecución'],
+    'En ejecución': ['Bloqueado', 'Terminado'],
+    Bloqueado: ['En ejecución'],
+    Terminado: [],
+  }
+
+  const operativo = JSON.parse(fs.readFileSync(archivo, 'utf8'))
+
+  if (!transiciones[operativo.estado]?.includes(estado)) {
+    return res.status(400).json({
+      error: `Transición no permitida: ${operativo.estado} → ${estado}.`,
+    })
+  }
+
+  operativo.estado = estado
+  operativo.fechaCambioEstado = new Date().toISOString()
+
+  fs.writeFileSync(archivo, JSON.stringify(operativo, null, 2), 'utf8')
+  res.json(operativo)
+})
 
 app.listen(PUERTO, () => {
   console.log(`Servidor escuchando en http://localhost:${PUERTO}`)
