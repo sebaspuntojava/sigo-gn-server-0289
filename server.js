@@ -7,6 +7,17 @@ const app = express()
 const PUERTO = 4000
 const CARPETA_EXPEDIENTES = path.join(__dirname, 'data', 'expedientes')
 
+const PERMISOS_POR_ROL = {
+  Comandante: 7,
+  Oficial: 6,
+  Analista: 4,
+}
+
+function tienePermiso(rol, accion) {
+  const permisos = PERMISOS_POR_ROL[rol] || 0
+  return (permisos & accion) === accion
+}
+
 app.use(cors())
 app.use(express.json())
 
@@ -112,6 +123,12 @@ app.get('/expedientes/:folio', (req, res) => {
 app.put('/expedientes/:folio', (req, res) => {
   const { folio } = req.params
 
+  const rol = req.get('x-rol')
+
+  if (!tienePermiso(rol, 2)) {
+    return res.status(403).json({ error: 'No tienes permiso para editar expedientes.' })
+  }
+
   if (!/^EXP-0289-\d{3}$/.test(folio)) {
     return res.status(400).json({ error: 'Formato de folio inválido.' })
   }
@@ -144,6 +161,12 @@ app.put('/expedientes/:folio', (req, res) => {
 
 app.delete('/expedientes/:folio', (req, res) => {
   const { folio } = req.params
+
+  const rol = req.get('x-rol')
+
+  if (!tienePermiso(rol, 1)) {
+    return res.status(403).json({ error: 'No tienes permiso para eliminar expedientes.' })
+  }
 
   if (!/^EXP-0289-\d{3}$/.test(folio)) {
     return res.status(400).json({ error: 'Formato de folio inválido.' })
