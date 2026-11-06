@@ -1,0 +1,9 @@
+{
+  "clave": "OP-0289-001",
+  "nombre": "Operativo de Prueba",
+  "tipoOperativo": "Patrullaje alrededor de UPIICSA",
+  "unidadAsignada": "Unidad 89",
+  "estado": "Terminado",
+  "prioridad": "Alta",
+  "fechaCambioEstado": "2026-11-06T07:15:24.035Z"
+}

@@ -6,6 +6,7 @@ const path = require('path')
 const app = express()
 const PUERTO = 4000
 const CARPETA_EXPEDIENTES = path.join(__dirname, 'data', 'expedientes')
+const CARPETA_OPERATIVOS = path.join(__dirname, 'data', 'operativos')
 
 const PERMISOS_POR_ROL = {
   Comandante: 7,
@@ -181,6 +182,117 @@ app.delete('/expedientes/:folio', (req, res) => {
   fs.unlinkSync(archivo)
   res.json({ mensaje: `Expediente ${folio} eliminado.` })
 })
+
+  app.get('/operativos', (req, res) => {
+  const archivos = fs.readdirSync(CARPETA_OPERATIVOS)
+
+  const operativos = archivos
+    .filter((archivo) => archivo.endsWith('.json'))
+    .map((archivo) => {
+      const contenido = fs.readFileSync(
+        path.join(CARPETA_OPERATIVOS, archivo),
+        'utf8'
+      )
+      return JSON.parse(contenido)
+    })
+
+  res.json(operativos)
+})
+
+app.post('/operativos', (req, res) => {
+  const { clave, nombre, tipoOperativo, unidadAsignada, prioridad } = req.body
+
+  if (!/^OP-0289-\d{3}$/.test(clave || '')) {
+    return res.status(400).json({
+      error: 'La clave debe tener formato OP-0289-###',
+    })
+  }
+
+  const archivo = path.join(CARPETA_OPERATIVOS, `${clave}.json`)
+
+  if (fs.existsSync(archivo)) {
+    return res.status(409).json({ error: 'Esa clave ya existe.' })
+  }
+
+  const operativo = {
+    clave,
+    nombre,
+    tipoOperativo,
+    unidadAsignada,
+    estado: 'Nuevo',
+    prioridad: prioridad || 'Media',
+    fechaCambioEstado: new Date().toISOString(),
+  }
+
+  fs.writeFileSync(archivo, JSON.stringify(operativo, null, 2), 'utf8')
+  res.status(201).json(operativo)
+})
+
+  app.get('/operativos/:clave', (req, res) => {
+  const { clave } = req.params
+
+  if (!/^OP-0289-\d{3}$/.test(clave)) {
+    return res.status(400).json({ error: 'Formato de clave inválido.' })
+  }
+
+  const archivo = path.join(CARPETA_OPERATIVOS, `${clave}.json`)
+
+  if (!fs.existsSync(archivo)) {
+    return res.status(404).json({ error: 'Operativo no encontrado.' })
+  }
+
+  const contenido = fs.readFileSync(archivo, 'utf8')
+  res.json(JSON.parse(contenido))
+})
+
+app.put('/operativos/:clave', (req, res) => {
+  const { clave } = req.params
+
+  if (!/^OP-0289-\d{3}$/.test(clave)) {
+    return res.status(400).json({ error: 'Formato de clave inválido.' })
+  }
+
+  const archivo = path.join(CARPETA_OPERATIVOS, `${clave}.json`)
+
+  if (!fs.existsSync(archivo)) {
+    return res.status(404).json({ error: 'Operativo no encontrado.' })
+  }
+
+  const actual = JSON.parse(fs.readFileSync(archivo, 'utf8'))
+  const { nombre, tipoOperativo, unidadAsignada, prioridad } = req.body
+
+  const operativo = {
+    clave,
+    nombre: nombre ?? actual.nombre,
+    tipoOperativo: tipoOperativo ?? actual.tipoOperativo,
+    unidadAsignada: unidadAsignada ?? actual.unidadAsignada,
+    estado: actual.estado,
+    prioridad: prioridad ?? actual.prioridad,
+    fechaCambioEstado: actual.fechaCambioEstado,
+  }
+
+  fs.writeFileSync(archivo, JSON.stringify(operativo, null, 2), 'utf8')
+  res.json(operativo)
+})
+
+app.delete('/operativos/:clave', (req, res) => {
+  const { clave } = req.params
+
+  if (!/^OP-0289-\d{3}$/.test(clave)) {
+    return res.status(400).json({ error: 'Formato de clave inválido.' })
+  }
+
+  const archivo = path.join(CARPETA_OPERATIVOS, `${clave}.json`)
+
+  if (!fs.existsSync(archivo)) {
+    return res.status(404).json({ error: 'Operativo no encontrado.' })
+  }
+
+  fs.unlinkSync(archivo)
+  res.json({ mensaje: `Operativo ${clave} eliminado.` })
+})
+
+
 
 app.listen(PUERTO, () => {
   console.log(`Servidor escuchando en http://localhost:${PUERTO}`)
